@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+</head>
+
+<body>
+    <canvas width="1200px" height="800px">
+        你的浏览器不支持
+    </canvas>
+
+    <script>
+
+        ; (function (w) {
+
+            function Ball(selector, number) {
+
+                this.cvs = document.querySelector(selector);
+                this.ctx = this.cvs.getContext("2d");
+                this.balls = [];//小球对象数组
+                this.number = number;
+                this.init();
+
+            }
+
+            Ball.prototype = {
+
+                init() {
+
+                    this.initBall();//生成number个小球
+                    this.move();
+                },
+
+                initBall() {
+                    for (let i = 0; i < this.number; i++) {
+                        var r = this.rd(30, 40);//保证起始位置是开始的r
+                        var ball = {//循环生成number个对象,放进数组
+                            r: r,
+                            startX: r,
+                            startY: r,
+                            stepX: this.rd(4, 8),
+                            stepY: this.rd(4, 8),
+                            color: `hsl(${this.rd(0, 360)},60%,60%)`
+
+                        };
+
+                        // this.ctx.beginPath();
+                        // this.ctx.arc(ball.startX, ball.startY, ball.r, 0, Math.PI * 2);
+                        // this.ctx.fillStyle = ball.color;
+                        // this.ctx.fill();
+                        // this.ctx.closePath();
+
+                        this.balls.push(ball);//把小球放到数组里
+                    }
+                    // console.log(this.balls);
+                },
+
+                move() {
+                    var that = this;
+
+                    setInterval(function () {//定时器里的this指向window
+
+                        that.ctx.clearRect(0, 0, that.cvs.width, that.cvs.height);
+                        var t;
+                        for (let i = 0; i < that.balls.length; i++) {
+                            t = that.balls[i];
+                            // console.log(i);每过1000/60毫秒,
+                            //for循环就循环一遍生成number个小球
+                            that.ctx.beginPath();
+
+                            t.startX += t.stepX;
+                            t.startY += t.stepY;
+                            that.ctx.moveTo(t.startX, t.startY);
+
+                            if (t.startX + t.r > that.cvs.width) {
+                                t.stepX = -t.stepX;//正的要变负的,负的要变正的,不能加绝对值
+                                t.startX = that.cvs.width - t.r;
+
+                            } else if (t.startX < t.r) {
+                                t.stepX = -t.stepX;
+                                t.startX = t.r;
+
+                            }
+                            if (t.startY + t.r > that.cvs.height) {
+                                t.stepY = -t.stepY;
+                                t.startY = that.cvs.height - t.r;
+                                //随机的步长不一定刚好等于零(可能永远不会等零)
+                            } else if (t.startY < t.r) {
+                                t.stepY = -t.stepY;
+                                t.startY = t.r;
+
+                            }
+
+                            that.ctx.arc(t.startX, t.startY, t.r, 0, Math.PI * 2);
+                            that.ctx.fillStyle = t.color;
+                            that.ctx.fill();
+                            that.ctx.closePath();
+
+                        }
+
+
+
+                        //连线两两连线冒泡
+
+                        for (let i = 0; i < that.balls.length - 1; i++) {
+                            for (let j = 0; j < that.balls.length - i - 1; j++) {
+                                var b1 = that.balls[j],
+                                    b2 = that.balls[j + 1],
+                                    x = b2.startX - b1.startX,
+                                    y = b2.startY - b1.startY
+                                if (x * x + y * y <= 200 * 200) {
+
+                                    that.ctx.beginPath();
+                                    that.ctx.moveTo(b1.startX, b1.startY);
+                                    that.ctx.lineTo(b2.startX, b2.startY);
+                                    that.ctx.lineWidth = 8;
+                                    that.ctx.strokeStyle = b1.color;
+                                    that.ctx.setLineDash([5, 10]);
+                                    that.ctx.stroke();
+                                }
+
+                            }
+
+                        }
+
+
+                    }, 1000 / 60);
+
+
+
+
+
+                },
+
+                rd(min, max) {
+
+                    return Math.floor(Math.random() * (max - min + 1)) + min;
+
+                }
+
+            }
+
+            w.Ball = Ball;
+
+        }(window));
+
+
+
+
+        var ball = new Ball("canvas", 30);
+
+    </script>
+
+</body>
+
+</html>

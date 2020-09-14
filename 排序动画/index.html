@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        ul {
+            position: relative;
+            list-style: none;
+            width: 940px;
+            height: 400px;
+            border: 2px solid yellowgreen;
+            margin: 100px auto;
+        }
+
+        li {
+            width: 50px;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+        }
+
+
+        div {
+            width: 100px;
+            height: 50px;
+            line-height: 50px;
+            text-align: center;
+            float: left;
+            margin-left: 100px;
+            border: 2px solid #000;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .act {
+            border: 2px solid green;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 初始化写入li -->
+    <ul></ul>
+    <!-- var btn1 = document.createElement("div");
+    document.body.appendChild(btn1);
+    btn1.innerText = "生成柱状图";
+    var btn2 = btn1.cloneNode(true);//深克隆
+    btn1.classList.add("btn1");
+    document.body.appendChild(btn2);
+    btn2.innerText = "排序";
+    btn2.classList.add("btn2"); -->
+    <div class="btn1">生成柱状图</div>
+    <div class="btn2">排序</div>
+
+    <script>
+        var ulEle = document.querySelector("ul");
+        var btn1 = document.querySelector(".btn1");
+        var btn2 = document.querySelector(".btn2");
+        var lis = ulEle.children;//动态数组
+        // var lis = document.querySelectorAll("li");//lis变不了,静态数组
+
+        btn1.onclick = function () {//生成相当于初始化可以和init合并
+            var str = "";
+            var hArr = [];
+            for (let i = 0; i < 10; i++) {
+                // Math.round(Math.random() * 10)[0,10]的整数//[0,1)
+                var h = Math.round(Math.random() * 10) * 30 + 50; //[50,350],最少间隔30 
+                if (!hArr.includes(h)) {//去重,判断数组是否包含某个元素
+                    //没有就往数组里放//并生成li
+
+                    hArr.push(h);
+                    // 0, 40, 1, 40 + 50 + 40, 2, 40 + 50 + 40 + 50 + 40//es6新增``
+                    str += `<li style="height:${h}px; background-color:hsl(${Math.round(Math.random() * 360)},90%,80%);left:${i * 90 + 40}px;"></li>`;
+
+                } else {
+                    i--;//重新随机h
+                }
+            }
+            ulEle.innerHTML = str;//写入页面
+        }
+
+
+        btn2.onclick = function () {
+            var i = 0;
+            var j = 0;
+            var flag = true;
+            var timer;
+            timer = setInterval(function () {
+
+                if (i < lis.length - 1) {
+                    if (j < lis.length - i - 1) {
+                        if (lis[j].offsetHeight > lis[j + 1].offsetHeight) {
+                            slowlyMove(lis[j], lis[j + 1].offsetLeft);
+                            slowlyMove(lis[j + 1], lis[j].offsetLeft);
+                            ulEle.insertBefore(lis[j + 1], lis[j]);//更新标签数组位置
+                            flag = false;
+                        }
+                        //共存不能写else
+                        j++;
+                    } else {//跳出内层循环
+                        if (flag) {//如果一轮下来flag还是true,说明没交换,说明已经排好了
+                            for (var k = 0; k <= j; k++) {//提前结束,要把它和它前面的变绿
+                                lis[k].classList.add("act");
+                            }
+                            console.log("提前结束----------");
+                            clearInterval(timer);
+                        } else {//不能共存就else
+                            lis[j].classList.add("act");
+                            i++;
+                            flag = true;
+                            j = 0;
+                        }
+                    }
+                } else {
+                    clearInterval(timer);
+                }
+
+            }, 600);
+
+
+        }
+
+
+
+        function slowlyMove(ele, target) {
+            if (ele.timer) {
+                clearInterval(ele.timer);
+            }
+            ele.style.opacity = "0.5";//移动时改变透明度
+            ele.timer = setInterval(function () {
+                var start = ele.offsetLeft;
+                var step = (target - start) / 10;
+                if (Math.abs(step) < 1) { // (-1,1)
+                    step = step > 0 ? 1 : Math.floor(step);
+                }
+                ele.style.left = start + step + "px";//最终位置=起始位置+步长(每1000/60毫秒加一次)
+                if (start + step === target) {
+                    ele.style.opacity = "";
+                    clearInterval(ele.timer);
+                    ele.timer = null;//防止连点加速,判断定时器的存在
+                }
+            }, 1000 / 60);
+        }
+
+
+
+
+    </script>
+</body>
+
+</html>

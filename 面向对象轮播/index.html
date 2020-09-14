@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        .arr-l,
+        .arr-r {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 30px;
+            cursor: pointer;
+            z-index: 10;
+
+        }
+
+        .arr-l {
+            left: 30px;
+            background: url(img/l.png) no-repeat center;
+            background-size: cover;
+        }
+
+        .arr-r {
+            right: 10px;
+            background: url(img/r.png) no-repeat center;
+            background-size: cover;
+        }
+
+        .dot {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 20px;
+            z-index: 10;
+        }
+
+        .dot span {
+            float: left;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .dot span~span {
+            margin-left: 15px;
+        }
+
+        .dot span::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background-color: #fff;
+        }
+
+        .dot span:hover {
+            border-color: #fff;
+        }
+
+        .dot .act {
+            border-color: #fff;
+        }
+
+        .banner {
+            width: 800px;
+            height: 400px;
+            position: relative;
+            margin: 100px auto;
+            overflow: hidden;
+
+        }
+
+        .swiper-c {
+            position: absolute;
+            left: 0;
+            border-radius: 10px;
+        }
+
+        .swiper-c .swiper-item {
+            float: left;
+            width: 800px;
+            height: 400px;
+        }
+
+        img {
+            height: 100%;
+            width: 100%;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="banner">
+        <div class="swiper-c">
+            <div class="swiper-item">
+                <img src="img/1.jpg" alt="">
+            </div>
+            <div class="swiper-item">
+                <img src="img/2.jpg" alt="">
+            </div>
+            <div class="swiper-item">
+                <img src="img/3.jpg" alt="">
+            </div>
+            <div class="swiper-item">
+                <img src="img/4.jpg" alt="">
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        ; (function (w) {
+
+            function Swiper(selector, setting) {
+                this.ele = document.querySelector(selector);
+                this.index = 0;
+                this.timer = null;
+                this.w = this.ele.children[0].offsetWidth;
+                //合并默认参,用户没输入配置,就用默认的false
+                this.setting = Object.assign({
+                    loop: false,
+                    pagination: false,
+                    autoPlay: false
+                }, setting);
+
+                this.init();
+
+            }
+
+            Swiper.prototype = {
+
+                init() {
+                    this.initWidth();
+                    this.initArrow();
+                    if (this.setting.pagination) {
+                        this.initDot();
+                    }
+                    if (this.setting.autoPlay) {
+                        this.autoChange();
+                    }
+
+                },
+                //初始化宽度
+                initWidth() {
+
+                    if (this.setting.loop) {
+                        var div = this.ele.children[0].cloneNode(true);
+
+                        this.ele.appendChild(div);
+                    }
+
+                    this.ele.style.width = this.w * this.ele.children.length + "px";
+
+                },
+                //初始化箭头
+                initArrow() {
+
+                    var str = `<i class="arr-l"></i>
+                    <i class="arr-r"></i>`;
+                    this.ele.insertAdjacentHTML("afterEnd", str);
+                    var arrR = document.querySelector(".arr-r");
+                    var arrL = document.querySelector(".arr-l");
+                    var that = this;
+                    arrR.onclick = function () {
+
+                        if (that.index == that.ele.children.length - 1) {
+                            if (that.setting.loop) {
+                                that.index = 0;
+                                that.ele.style.left = "0px";
+                            } else {
+                                that.index = -1;
+                                // that.ele.style.left = -that.w * that.index + "px";
+
+                            }
+
+                        }
+
+                        that.index++;
+                        that.set();
+                        if (that.setting.autoPlay) {
+                            clearInterval(that.timer);
+                            that.autoChange();
+                        }
+
+
+                    }
+
+                    arrL.onclick = function () {
+
+
+                        if (that.index == 0) {
+                            if (that.setting.loop) {
+                                that.index = that.ele.children.length - 1;
+                                that.ele.style.left = -that.w * that.index + "px";
+                            } else {
+                                that.index = that.ele.children.length;
+                                // that.ele.style.left = -that.w * that.index + "px";
+                            }
+
+                        }
+
+                        that.index--;
+                        that.set();
+                        if (that.setting.autoPlay) {
+                            clearInterval(that.timer);
+                            that.autoChange();
+                        }
+
+                    }
+
+                },
+
+                initDot() {
+
+                    var str = `<div class="dot">`;
+                    var length = this.ele.children.length;
+                    length = this.setting.loop ? length - 1 : length;
+                    for (let i = 0; i < length; i++) {
+                        str += `<span data-index="${i}" class=${i == 0 ? "act" : ""}></span>`;
+                    }
+                    str += `</div>`;
+                    this.ele.insertAdjacentHTML("afterEnd", str);
+                    var dot = document.querySelector(".dot");
+                    var that = this;
+                    dot.onclick = function () {
+                        if (event.target.closest("span")) {
+                            // 使用自定义属性绑定小点的下标,这里赋值的是字符串，
+                            //上面判断的是全等，会冲突
+                            that.index = event.target.dataset.index;
+                            that.set();
+                            if (that.setting.autoPlay) {
+                                clearInterval(that.timer);
+                                that.autoChange();
+                            }
+                        }
+                    }
+
+                },
+
+                move() {
+                    var ele = this.ele,
+                        target = -this.w * this.index;
+
+                    if (ele.timer) {
+                        clearInterval(ele.timer);
+                    }
+                    ele.timer = setInterval(function () {
+                        var step = (target - ele.offsetLeft) / 10;
+
+                        if (Math.abs(step) < 1) {
+                            step = step > 0 ? 1 : Math.floor(step);
+                        }
+                        ele.style.left = step + ele.offsetLeft + "px";
+
+                        if (ele.offsetLeft === target) {
+                            clearInterval(ele.timer);
+                            ele.timer = null;
+                        }
+
+                    }, 1000 / 60)
+
+                },
+
+                set() {
+
+                    this.move();
+                    if (this.setting.pagination) {
+                        document.querySelector(".dot .act").classList.remove("act");
+                        // 0, 1, 2, 3, 4, 5                 5
+                        var dotIndex = this.index % document.querySelector(".dot").children.length;
+
+                        document.querySelector(".dot").children[dotIndex].classList.add("act");
+
+                    }
+
+                },
+
+                autoChange() {
+                    var that = this;
+                    that.timer = setInterval(function () {//定时器里的this指向window
+
+                        if (that.index == that.ele.children.length - 1) {
+                            if (that.setting.loop) {
+                                that.index = 0;
+                                that.ele.style.left = "0px";
+                            } else {
+                                that.index = -1;
+                                // that.ele.style.left = -that.w * that.index + "px";
+                            }
+                        }
+                        that.index++;
+                        that.set();
+                    }, 2000);
+
+                }
+
+
+            }
+
+            //将Swiper暴露给全局变量
+            w.Swiper = Swiper;
+
+        }(window));
+
+        var swiper = new Swiper(".swiper-c", {
+            loop: true,//是否无缝轮播
+            pagination: true,//是否加小点
+            autoPlay: true//是否开启自动轮播
+        })
+    </script>
+</body>
+
+</html>
