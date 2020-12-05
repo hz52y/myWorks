@@ -1,0 +1,9 @@
+<view style="background:{{color}};height:150px">
+	<slot name="header"></slot>
+	<text>我是cpn组件{{title}}</text>
+	<button bindtap="emit">发射自定义事件</button>
+	<!-- 一个组件当中 默认只有一个插槽 -->
+	<!-- slot name="header"  具名插槽  默认名称 default -->
+	<slot name="footer"></slot>
+	<slot></slot>
+</view>
