@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+  <link rel="icon" href="<%= BASE_URL %>favicon.ico">
+  <title><%= htmlWebpackPlugin.options.title %></title>
+  <!-- 引入百度地图密钥 -->
+  <!-- 请求JavaScript API v3.0的定位功能时，必须获取用户授权 -->
+  <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=Dr1cKfrEGbUdUU7VinWmAoqx78kOrq24"></script>
+</head>
+
+<body>
+  <noscript>
+
+    <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled.
+      Please enable it to continue.</strong>
+  </noscript>
+  <div id="app"></div>
+  <!-- built files will be auto injected -->
+</body>
+
+</html>
